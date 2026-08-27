@@ -1,0 +1,232 @@
+generated: '2026-08-27'
+method: searched
+source: >-
+  https://docs.shiphawk.com/ — the "API Principles", "Authentication", "API Hosts Block",
+  "Common Params", "Pagination Params" and "Status Codes" sections, plus live response
+  headers observed on https://shiphawk.com/api/v4/user on 2026-08-27.
+description: >-
+  Cross-cutting runtime semantics of the ShipHawk v4 REST API — the behaviour that applies
+  to every endpoint rather than to any single operation. ShipHawk is a plain, unfashionable
+  REST API: JSON in and out, offset pagination, a single API key, a one-string error
+  envelope, and no idempotency mechanism at all. It does emit a per-request correlation id.
+base_url: https://shiphawk.com/api/v4
+sandbox_base_url: https://sandbox.shiphawk.com/api/v4
+api_style: >-
+  REST over HTTPS. JSON request and response bodies (application/x-www-form-urlencoded also
+  accepted when no Content-Type is set). HTTPS mandatory.
+http_verbs:
+  used: [GET, POST, DELETE]
+  not_used: [PUT, PATCH]
+  note: >-
+    Documented explicitly: "We forgo the use of the HTTP PUT and PATCH verbs and use POST for
+    both creating and updating resources. If you POST to the endpoint for a specific resource
+    (rather than the collection), the existing resource will be updated with any attributes
+    sent in the request. Attributes not specified in the request will retain their existing
+    values." POST-to-update therefore behaves as a partial merge, not a replace.
+  docs: https://docs.shiphawk.com/#api-principles
+authentication:
+  scheme: API key
+  transports: [X-Api-Key request header, api_key query parameter]
+  detail: authentication/shiphawk-authentication.yml
+  docs: https://docs.shiphawk.com/#authentication
+idempotency:
+  supported: false
+  mechanism: none
+  note: >-
+    The word "idempotent" does not appear anywhere in the ShipHawk reference. There is no
+    Idempotency-Key header, no client-supplied request key, and no documented replay
+    semantics. Because POST is used for both create and update, a retried create is a
+    genuine duplicate risk on rating, order and shipment creation. No `Idempotency` pointer
+    is emitted in apis.yml — the mechanism is absent, not merely undocumented in one place.
+  partial_mitigation: >-
+    HTTP 423 Locked is returned when "Resource is locked because it is processing another
+    request", which serialises concurrent writes against one resource but does not
+    de-duplicate retries.
+pagination:
+  style: offset / page-number
+  request_params:
+    page:
+      type: integer
+      default: 1
+    per_page:
+      type: integer
+      default: 100
+    sort:
+      type: string
+    direction:
+      type: enum
+      default: asc
+      options: [asc, desc]
+  response_fields: >-
+    Not documented — the reference describes no envelope, total-count field or has_more flag
+    on list responses. Several resources expose a separate count endpoint instead
+    (GET /api/v4/addresses/counts, /api/v4/skus/counts, /api/v4/shipments/search_count,
+    /api/v4/child_accounts/counts, /api/v4/child_accounts/:id/users/count).
+  cursor_support: false
+  docs: https://docs.shiphawk.com/#pagination-params
+field_expansion:
+  supported: false
+  note: >-
+    No expand[]/fields[] sparse-fieldset mechanism. Related objects are reached through
+    dedicated sub-collection endpoints (e.g. GET /api/v4/orders/:id/shipments,
+    /api/v4/orders/:id/order_line_items, /api/v4/shipments/:id/documents).
+filtering_and_search:
+  style: >-
+    Per-resource search endpoints and repeated bracketed array query parameters, e.g.
+    GET /api/v4/materials/containers?per_page=10&page=1&query=Express&packing_types[]=box&carrier_ids[]=3&statuses[]=false
+  search_endpoints:
+  - GET /api/v4/addresses/search
+  - GET /api/v4/skus/search
+  - GET /api/v4/shipments (Search Shipments)
+  - GET /api/v4/materials/containers (Search for Material Containers)
+  - GET /api/v4/unpacked_item_types/search
+  - Search Orders
+metadata:
+  supported: partial
+  mechanism: >-
+    No generic key/value metadata bag. Correlation to external systems is carried by typed
+    fields instead: reference numbers (Order ReferenceNumber, Shipment Reference Number,
+    Order Line Reference Numbers), `source_system` / Source System Meta objects
+    (e.g. GET /api/v4/orders/simple?source_system=NetSuite), and inventory identifiers.
+request_tracing:
+  supported: true
+  response_header: x-request-id
+  observed_example_header_set: [x-request-id, x-runtime, x-app-version, x-release-version, x-app-env]
+  observed_at: https://shiphawk.com/api/v4/user
+  observed_date: '2026-08-27'
+  note: >-
+    Undocumented but present on every response. `x-request-id` is the value to quote to
+    support@shiphawk.com; `x-runtime` gives server-side duration in seconds.
+versioning:
+  scheme: URI path (/api/v4)
+  detail: lifecycle/shiphawk-lifecycle.yml
+error_envelope:
+  content_type: application/json
+  shape: '{"error": "<message>"}'
+  rfc9457: false
+  detail: errors/shiphawk-problem-types.yml
+rate_limit_signaling:
+  documented: false
+  headers_observed: none
+  detail: rate-limits/shiphawk-rate-limits.yml
+asynchronous_operations:
+  supported: true
+  mechanism: >-
+    Long-running operations return a job tracker the client polls:
+    GET /api/v4/job_trackers/:id. Async variants exist for booking a proposed shipment
+    (book_async), splitting an order (split_async), combining orders (Combine Order Async),
+    generating a pick ticket (pick_ticket_async) and bulk SKU import
+    (POST /api/v4/bulk_sku_imports then GET /api/v4/bulk_sku_imports/:id).
+  callback_alternative: webhooks — see asyncapi/shiphawk-webhooks.yml
+  docs: https://docs.shiphawk.com/#job-trackers
+identifier_conventions:
+  style: prefixed opaque string ids
+  observed_prefixes:
+  - prefix: ord_
+    entity: Order
+  - prefix: shp_
+    entity: Shipment
+  - prefix: wh_
+    entity: Webhook
+  - prefix: whs_
+    entity: Warehouse
+  note: >-
+    Prefixes are read from ShipHawk's own documented examples (ord_2E1pWGRh, shp_Hcy0ZwR1,
+    wh_6vh3AegY, whs_8MXd7Phd). ShipHawk publishes no id-prefix reference table; this list is
+    what the examples demonstrate, not an exhaustive registry.
+dry_run_mode:
+  supported: na
+  note: >-
+    No dry-run/preview flag. The closest documented rehearsal surface is a two-stage booking
+    flow — generate or create a Proposed Shipment, inspect it, then book it — plus the rate
+    request, which prices a shipment without creating one. Neither is a dry-run parameter on
+    a write operation. The shared Sandbox environment is the intended rehearsal surface
+    (see sandbox/shiphawk-sandbox.yml).
+reversibility:
+  applicable: true
+  grade: documented
+  grade_basis: >-
+    Reversal operations are published for every major write surface (cancel shipment, cancel
+    order, remove hold, delete), but ShipHawk states no time window or state boundary for any
+    of them, so this cannot be graded `verified`. The one stated window in the whole
+    reference — "Rates are valid for two hours before they expire" — is an expiry on a
+    read-only quote, not a reversal window.
+  write_surfaces:
+  - surface: Shipment booking
+    write_operation: POST /api/v4/shipments
+    reversal:
+      operation: Cancel a Shipment
+      method: DELETE
+      path: /api/v4/shipments/:id
+      docs: https://docs.shiphawk.com/#cancel-a-shipment
+    window: not stated
+    window_note: >-
+      ShipHawk does not publish a cancellation deadline, a carrier-tender cutoff, or the
+      shipment statuses from which cancellation is refused. A booked shipment is tendered to
+      a real carrier, so a practical cutoff certainly exists — it is simply not documented.
+      Do not assume one.
+  - surface: Order creation
+    write_operation: POST /api/v4/orders
+    reversal:
+      operation: Cancel an Order
+      method: POST
+      path: /api/v4/orders/:order_number_or_id/cancel
+      docs: https://docs.shiphawk.com/#cancel-an-order
+      parameters:
+      - name: remove_unshiped
+        type: boolean
+        default: false
+        description: Whether ShipHawk removes Proposed Shipments still in unprocessed state.
+    also: DELETE /api/v4/orders/:id (hard delete)
+    window: not stated
+  - surface: Order hold
+    write_operation: POST /api/v4/orders/hold
+    reversal:
+      operation: Remove Hold on Orders
+      method: POST
+      path: /api/v4/orders/restore
+      docs: https://docs.shiphawk.com/#remove-hold-on-orders
+      note: Takes an ids[] array, so a batch hold is reversed in one call.
+    window: not stated
+  - surface: Proposed shipment
+    write_operation: POST /api/v4/orders/:id/proposed_shipments
+    reversal:
+      operation: Delete a Proposed Shipment
+      method: DELETE
+      path: /api/v4/orders/:id/proposed_shipments/:proposed_shipment_id
+    window: >-
+      Not stated as a duration, but state-bounded in practice — once a proposed shipment is
+      booked (POST .../proposed_shipments/book) the reversal surface becomes Cancel a Shipment.
+  - surface: SKU, address, batch, webhook, warehouse, material container, document, note, user
+    write_operation: POST (create/update)
+    reversal:
+      operation: DELETE on the same resource
+      note: >-
+        Plain deletes, including bulk forms (DELETE /api/v4/skus/all,
+        DELETE /api/v4/materials/containers, DELETE /api/v4/orders/:id/order_line_items).
+    window: none — deletes are immediate and no restore/undelete endpoint is published
+    caution: >-
+      DELETE /api/v4/skus/all deletes the entire product catalogue and has no documented
+      undo. There is no trash, soft-delete or restore endpoint for SKUs.
+  irreversible:
+  - Label and document generation (labels, BOLs, commercial invoices) — no void-label endpoint
+    is published; carrier-side label voiding is not exposed through the API.
+  - Emailing shipping documents (POST /api/v4/shipments/:id/documents/email) — send is final.
+  - Bulk deletes (skus/all, containers) — no restore path.
+  stated_windows:
+  - subject: Rate quotes
+    window: 2 hours
+    statement: >-
+      "Rates are valid for two hours before they expire. During this time you can recall them,
+      and use them to book shipments or create orders. After two hours, they are no longer
+      accessible and require another request to the rates API endpoint."
+    docs: https://docs.shiphawk.com/#common-rating-use-cases
+    note: An expiry window on a quote, not a reversal window on a write.
+cross_links:
+  errors: errors/shiphawk-problem-types.yml
+  lifecycle: lifecycle/shiphawk-lifecycle.yml
+  authentication: authentication/shiphawk-authentication.yml
+  rate_limits: rate-limits/shiphawk-rate-limits.yml
+  sandbox: sandbox/shiphawk-sandbox.yml
+  webhooks: asyncapi/shiphawk-webhooks.yml
+  data_model: data-model/shiphawk-data-model.yml

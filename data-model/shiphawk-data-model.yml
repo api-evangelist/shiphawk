@@ -1,0 +1,212 @@
+generated: '2026-08-27'
+method: derived
+source: >-
+  Derived from the object reference and endpoint tree published at https://docs.shiphawk.com/
+  (ShipHawk publishes no OpenAPI, so relationships are read from documented object attributes,
+  id-reference field names and sub-collection endpoint paths rather than from $ref links).
+description: >-
+  The ShipHawk v4 entity graph. Two spines run through it: a commerce spine
+  (Order -> OrderLineItem -> ProposedShipment -> Shipment -> Document) and a catalog/facility
+  spine (SKU, HandlingUnit, UnpackedItemType, MaterialContainer, Warehouse, Workstation).
+  Rate sits outside both as a stateless pricing call whose result can be carried into a
+  booking for two hours.
+entity_count: 19
+id_convention:
+  style: prefixed opaque string
+  observed:
+    Order: ord_
+    Shipment: shp_
+    Webhook: wh_
+    Warehouse: whs_
+  note: Read from ShipHawk's documented examples; no published id-prefix registry.
+entities:
+- name: Order
+  description: A customer order synchronised into ShipHawk for fulfilment.
+  key_fields: [id, order_number, origin_address, destination_address, order_line_items, batch_id, warehouse_id]
+  endpoints_root: /api/v4/orders
+- name: OrderLineItem
+  description: A line on an order, tied to a SKU and a quantity.
+  endpoints_root: /api/v4/orders/:id/order_line_items
+- name: ReferenceNumber
+  description: External reference values attached to orders, order lines and shipments.
+- name: ProposedShipment
+  description: >-
+    A costed, carrier-selected shipment plan generated from an order and not yet booked.
+    Booking it produces a Shipment.
+  endpoints_root: /api/v4/orders/:id/proposed_shipments
+- name: Shipment
+  description: A booked shipment, with packages, billing details, accessorials and tracking.
+  key_fields: [id, order_number, origin_address, destination_address, warehouse_id, packages, carrier]
+  endpoints_root: /api/v4/shipments
+- name: ShipmentNote
+  endpoints_root: /api/v4/shipments/:id/notes
+- name: Document
+  description: >-
+    A shipping document attached to a shipment — parcel label, BOL, commercial invoice,
+    packing slip, address label, return label.
+  endpoints_root: /api/v4/shipments/:id/documents
+- name: Address
+  description: A stored, optionally validated address, retrievable by id or by code.
+  endpoints_root: /api/v4/addresses
+- name: Rate
+  description: >-
+    A stateless multi-carrier pricing result. Rate requests carry addresses and items and
+    return rate details per carrier/service; results expire after two hours.
+  endpoints_root: /api/v4/rates
+- name: SKU
+  description: A product in the ShipHawk PMS, with dimensions, weight, freight class, harmonized code and hazmat data.
+  endpoints_root: /api/v4/skus
+- name: SKUAlias
+  endpoints_root: /api/v4/pms_skus/sku_aliases
+- name: HandlingUnit
+  description: A freight handling unit (pallet, crate) used for LTL shipments.
+- name: UnpackedItemType
+  description: >-
+    A ShipHawk-maintained catalog of item types used when a product's packing is unknown.
+    Explicitly not shared between Sandbox and Production.
+  endpoints_root: /api/v4/unpacked_item_types
+- name: MaterialContainer
+  description: Packaging material (boxes, containers) available to a warehouse for packing optimization.
+  endpoints_root: /api/v4/materials/containers
+- name: Warehouse
+  endpoints_root: /api/v4/warehouses
+- name: Workstation
+  description: A packing/shipping station within a warehouse.
+  endpoints_root: /api/v4/workstations
+- name: Batch
+  description: A grouping of orders/shipments processed together.
+  endpoints_root: /api/v4/batches
+- name: ChildAccount
+  description: A sub-account under a parent ShipHawk account, with its own users.
+  endpoints_root: /api/v4/child_accounts
+- name: User
+  endpoints_root: /api/v4/users
+- name: Webhook
+  endpoints_root: /api/v4/webhooks
+- name: JobTracker
+  description: >-
+    The polling handle returned by asynchronous operations (book_async, split_async,
+    combine async, pick_ticket_async).
+  endpoints_root: /api/v4/job_trackers
+relationships:
+- from: Order
+  to: OrderLineItem
+  kind: has_many
+  via: order_line_items
+  evidence: GET /api/v4/orders/:id/order_line_items
+- from: Order
+  to: ProposedShipment
+  kind: has_many
+  via: proposed_shipments
+  evidence: GET /api/v4/orders/:id/proposed_shipments
+- from: Order
+  to: Shipment
+  kind: has_many
+  via: shipments
+  evidence: GET /api/v4/orders/:id/shipments
+- from: Order
+  to: Address
+  kind: has_one
+  via: origin_address
+- from: Order
+  to: Address
+  kind: has_one
+  via: destination_address
+- from: Order
+  to: Batch
+  kind: belongs_to
+  via: batch_id
+- from: Order
+  to: Warehouse
+  kind: belongs_to
+  via: warehouse_id
+- from: Order
+  to: ReferenceNumber
+  kind: has_many
+  via: reference_numbers
+- from: OrderLineItem
+  to: SKU
+  kind: belongs_to
+  via: sku
+- from: ProposedShipment
+  to: Order
+  kind: belongs_to
+  via: nested under /api/v4/orders/:id/proposed_shipments
+- from: ProposedShipment
+  to: Shipment
+  kind: produces
+  via: POST /api/v4/orders/:id/proposed_shipments/book
+- from: Shipment
+  to: Address
+  kind: has_one
+  via: origin_address
+- from: Shipment
+  to: Address
+  kind: has_one
+  via: destination_address
+- from: Shipment
+  to: Document
+  kind: has_many
+  via: documents
+  evidence: GET /api/v4/shipments/:id/documents
+- from: Shipment
+  to: ShipmentNote
+  kind: has_many
+  via: notes
+  evidence: GET /api/v4/shipments/:id/notes
+- from: Shipment
+  to: Warehouse
+  kind: belongs_to
+  via: warehouse_id
+- from: Shipment
+  to: HandlingUnit
+  kind: has_many
+  via: handling_unit / handling_unit_type on packages
+- from: Rate
+  to: Address
+  kind: references
+  via: origin/destination address objects in the rate request
+- from: Rate
+  to: SKU
+  kind: references
+  via: shipment line items / items in the rate request
+- from: MaterialContainer
+  to: Warehouse
+  kind: belongs_to
+  via: warehouse_ids / warehouse_public_ids
+- from: MaterialContainer
+  to: Carrier
+  kind: belongs_to
+  via: carrier_ids
+- from: ChildAccount
+  to: User
+  kind: has_many
+  via: /api/v4/child_accounts/:child_account_id/users
+- from: SKU
+  to: SKUAlias
+  kind: has_many
+  via: sku_aliases
+- from: SKU
+  to: HarmonizedCodeMapping
+  kind: has_many
+  via: SKU HarmonizedCodeMapping object
+- from: Webhook
+  to: Shipment
+  kind: observes
+  via: shipment.* event types
+- from: JobTracker
+  to: Order
+  kind: tracks
+  via: async order operations (split_async, combine, pick_ticket_async)
+- from: JobTracker
+  to: ProposedShipment
+  kind: tracks
+  via: book_async
+domain_vocabulary:
+  standards_referenced_in_the_model:
+  - NMFC — National Motor Freight Classification code, on handling units and SKUs
+  - Harmonized System (HS/HTC) code — on SKUs, via SKU HarmonizedCodeMapping
+  - SSCC — Serial Shipping Container Codes, on handling units (sscc_serial_references)
+  - GS1 Bill of Lading Guidelines — cited as the source for BOL field semantics
+  note: See conformance/shiphawk-conformance.yml for the domain-standard assessment.
+render: none — no subway/ diagram in this repo

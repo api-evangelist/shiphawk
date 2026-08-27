@@ -1,0 +1,79 @@
+generated: '2026-08-27'
+method: searched
+source: https://docs.shiphawk.com/#status-codes
+docs: https://docs.shiphawk.com/#status-codes
+description: >-
+  ShipHawk's published error surface. The reference carries one flat HTTP status-code
+  table and no error-code registry, no per-code remediation guidance and no machine-readable
+  problem type identifiers. Error bodies are a bare JSON object with a single `error`
+  string — observed live at https://shiphawk.com/api/v4/user (401) — not RFC 9457
+  application/problem+json.
+format: proprietary
+rfc9457: false
+content_type: application/json
+envelope:
+  shape: '{"error": "<message>"}'
+  fields:
+  - name: error
+    type: string
+    description: Human-readable message. No stable machine code, no field-level detail array.
+  observed_example: '{"error":"401 Unauthorized"}'
+  observed_at: https://shiphawk.com/api/v4/user
+  observed_date: '2026-08-27'
+  note: >-
+    A second shape was observed on an unrouted path under the API prefix —
+    {"error":"Route not found"} at https://shiphawk.com/api/v4?wsdl (HTTP 404) — same
+    single-string envelope.
+problem_types:
+- status: 400
+  title: Bad Request
+  detail: Parameters might be missing or incorrect.
+  retryable: false
+  remediation: Correct the request parameters. ShipHawk does not return per-field validation detail.
+- status: 401
+  title: Unauthorized
+  detail: Your authentication credentials are out of date or invalid.
+  retryable: false
+  remediation: Supply a valid API key via the X-Api-Key header (or api_key parameter) for the correct environment.
+- status: 402
+  title: Suspended
+  detail: Your account has been suspended. Please contact ShipHawk support at support@shiphawk.com.
+  retryable: false
+  remediation: Contact support@shiphawk.com. Non-standard use of 402 — this is an account-state signal, not a payment-required condition.
+- status: 403
+  title: Forbidden
+  detail: You do not have permission to perform the request.
+  retryable: false
+  remediation: >-
+    Check the user's permission level, and confirm the key matches the environment —
+    ShipHawk returns 403 when a sandbox key is used against production or vice versa.
+- status: 404
+  title: Not Found
+  detail: The requested resource does not exist.
+  retryable: false
+- status: 422
+  title: Unprocessable Entity
+  detail: Params are valid, but some logic error happened.
+  retryable: false
+  remediation: >-
+    The catch-all business-logic failure. ShipHawk documents no sub-codes, so a client
+    cannot distinguish "no carrier rates available" from "SKU not found" without parsing
+    the free-text message.
+- status: 423
+  title: Locked
+  detail: Resource is locked because it is processing another request.
+  retryable: true
+  remediation: >-
+    Back off and retry. ShipHawk publishes no Retry-After header and no recommended backoff
+    interval for this state; it is the concurrency guard behind the asynchronous
+    order/shipment operations (split_async, combine, book_async, pick_ticket_async).
+- status: 500
+  title: Internal Server Error
+  detail: An unexpected condition occurred on the ShipHawk server.
+  retryable: true
+gaps:
+- No stable error codes — clients must string-match human-readable messages.
+- No application/problem+json (RFC 9457) media type.
+- No field-level validation errors on 400/422.
+- No documented Retry-After or backoff guidance for 423 or 500.
+- No published error-code registry page distinct from the status-code table.

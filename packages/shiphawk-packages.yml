@@ -1,0 +1,138 @@
+generated: '2026-08-27'
+method: searched
+source: >-
+  https://github.com/ShipHawk (org repo listing via api.github.com) and
+  https://rubygems.org/api/v1/gems/shiphawk.json. npm, PyPI and Packagist were queried
+  for first-party ShipHawk packages and returned no results — the Node, Python and Elixir
+  clients exist only as GitHub repositories, never published to a registry.
+description: >-
+  First-party ShipHawk client libraries and platform plugins. ShipHawk's documented API is
+  v4 (docs.shiphawk.com); every first-party client library below was last touched between
+  2014 and 2018 and the only registry-published one (the `shiphawk` RubyGem, 0.8.1) was
+  released 2015-11-03 — a decade before the current v4 reference. Treat all of them as
+  unmaintained relative to the live API.
+packages:
+- name: shiphawk
+  language: Ruby
+  registry: rubygems
+  official: true
+  url: https://rubygems.org/gems/shiphawk
+  repository: https://github.com/ShipHawk/shiphawk-ruby
+  version: 0.8.1
+  published: '2015-11-03'
+  license: MIT
+  note: >-
+    The only ShipHawk API client published to a package registry. Last release 2015-11-03;
+    the GitHub repository was last pushed 2018-02-05. Predates the documented v4 API surface.
+- name: shiphawk-ruby
+  language: Ruby
+  registry: github
+  official: true
+  url: https://github.com/ShipHawk/shiphawk-ruby
+  version: null
+  published: '2018-02-05'
+  note: >-
+    Source repository behind the `shiphawk` RubyGem. No GitHub releases/tags surfaced;
+    `published` records the last push date, not a release date. Registry version is 0.8.1.
+- name: shiphawk-python
+  language: Python
+  registry: github
+  official: true
+  url: https://github.com/ShipHawk/shiphawk-python
+  version: null
+  published: '2015-12-14'
+  note: >-
+    "ShipHawk API Client Library for Python". Never published to PyPI (pypi.org/pypi/shiphawk/json
+    and /shiphawk-python/json both 404). Last push 2015-12-14.
+- name: shiphawk-node
+  language: JavaScript
+  registry: github
+  official: true
+  url: https://github.com/ShipHawk/shiphawk-node
+  version: null
+  published: '2015-12-14'
+  note: >-
+    "ShipHawk API Client Library for Node". Never published to npm (registry.npmjs.org/shiphawk
+    and /shiphawk-node both return {"error":"Not found"}). Last push 2015-12-14.
+- name: shiphawk-elixir
+  language: Elixir
+  registry: github
+  official: true
+  url: https://github.com/ShipHawk/shiphawk-elixir
+  version: null
+  published: '2015-12-14'
+  note: >-
+    "ShipHawk API Client Library for Elixir". Not on hex.pm under this name. Last push 2015-12-14.
+- name: shiphawk-rails
+  language: Ruby
+  registry: github
+  official: true
+  url: https://github.com/ShipHawk/shiphawk-rails
+  version: null
+  published: '2015-02-01'
+  note: Rails integration helper for the ShipHawk API. Not published to RubyGems.
+- name: shiphawk-magento-2
+  language: PHP
+  registry: github
+  official: true
+  kind: platform-plugin
+  url: https://github.com/ShipHawk/shiphawk-magento-2
+  version: null
+  published: '2026-04-22'
+  note: >-
+    Magento 2 shipping extension — the only actively maintained first-party integration in the
+    org (last push 2026-04-22). Not on Packagist (packagist.org search for "shiphawk" returns
+    no ShipHawk-owned package), so it is installed from source rather than via composer require.
+- name: shiphawk-magento-order-plugin
+  language: PHP
+  registry: github
+  official: true
+  kind: platform-plugin
+  url: https://github.com/ShipHawk/shiphawk-magento-order-plugin
+  version: null
+  published: '2022-03-24'
+- name: shiphawk-woocommerce-plugin
+  language: PHP
+  registry: github
+  official: true
+  kind: platform-plugin
+  url: https://github.com/ShipHawk/shiphawk-woocommerce-plugin
+  version: null
+  published: '2017-12-19'
+- name: shiphawk-xcart-classic-plugin
+  language: PHP
+  registry: github
+  official: true
+  kind: platform-plugin
+  url: https://github.com/ShipHawk/shiphawk-xcart-classic-plugin
+  version: null
+  published: '2014-06-20'
+internal_tooling:
+- name: rubocop-shiphawk
+  language: Ruby
+  registry: rubygems
+  official: true
+  url: https://rubygems.org/gems/rubocop-shiphawk
+  version: 1.5.0
+  published: '2020-05-29'
+  note: Internal code-style config, not an API client.
+- name: danger-shiphawk-plugin
+  language: Ruby
+  registry: rubygems
+  official: true
+  url: https://rubygems.org/gems/danger-shiphawk-plugin
+  version: 1.0.8
+  published: '2020-08-26'
+  note: Internal CI plugin, not an API client.
+registries_checked:
+- registry: rubygems
+  result: 3 ShipHawk-owned gems (1 API client, 2 internal tooling)
+- registry: npm
+  result: no first-party client (only shiphawk-fonts@1.1.0, 2017-02-21, a web-app font package)
+- registry: pypi
+  result: 404 for shiphawk and shiphawk-python
+- registry: packagist
+  result: no ShipHawk-owned package
+- registry: hex.pm
+  result: not published
+official_sdk_count: 6

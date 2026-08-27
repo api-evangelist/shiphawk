@@ -1,0 +1,90 @@
+generated: '2026-08-27'
+method: searched
+source: >-
+  https://docs.shiphawk.com/ (deprecation notices carried inline in the endpoint reference),
+  https://shiphawk.statuspage.io/ (Atlassian Statuspage), and live response headers on
+  https://shiphawk.com/api/v4/user probed 2026-08-27.
+description: >-
+  ShipHawk versions its API in the URL path (/api/v4) and has been on v4 for the whole life
+  of the current documentation. It publishes no written versioning policy, no deprecation
+  policy document and no Sunset/Deprecation header support; deprecations are announced as
+  inline notes in the endpoint reference, with a stated effective date, and the deprecated
+  endpoint is left in the reference alongside its replacement.
+versioning:
+  scheme: URI path
+  current_version: v4
+  pattern: https://shiphawk.com/api/v{n}/...
+  version_header: none
+  date_versioning: false
+  policy_document: none published
+  note: >-
+    A build identifier is exposed at runtime rather than an API version negotiation
+    surface: the API returns `x-release-version: v2026.6.0` and
+    `x-app-version: 5a78410419307f21ba5279b42a2dcdb4dcf44b14` on every response
+    (observed 2026-08-27). These identify the deployed release, not the contract version.
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  mechanism: >-
+    Inline notes in the endpoint reference, in the form
+    "Endpoint is deprecated, please use <replacement> (Deprecated on <date>)".
+  notice_period: not stated
+  removal_commitment: none stated — deprecated endpoints remain documented and callable
+  deprecated_operations:
+  - operation: Cancel an Order
+    method: POST
+    path: /api/v4/orders/:order_number/cancelled
+    deprecated_on: '2024-05-01'
+    replacement: POST /api/v4/orders/:order_number_or_id/cancel
+    source: https://docs.shiphawk.com/#cancel-an-order-endpoint-is-deprecated-please-use-cancel-deprecated-on-may-1st-2024
+  - operation: Combine One or More Orders
+    method: POST
+    path: /api/v4/orders/combine
+    deprecated_on: '2024-01-01'
+    replacement: Combine Order Async (POST /api/v4/orders/combine, async variant)
+    source: https://docs.shiphawk.com/#combine-one-or-more-orders-endpoint-is-deprecated-please-use-combine-order-async-deprecated-on-january-1st-2024
+  deprecated_fields:
+  - field: limited_quantity (HazmatData)
+    note: 'Docs mark it "deprecated, prefer" the newer hazmat attribute.'
+  - note: >-
+      Several object attributes carry a bare "Deprecated! Use ..." marker in the reference
+      without a date; they are not enumerated here because the docs do not name effective dates.
+status_page:
+  url: https://shiphawk.statuspage.io/
+  provider: Atlassian Statuspage
+  status: 200
+  probed: '2026-08-27'
+  machine_readable_endpoints:
+  - https://shiphawk.statuspage.io/api/v2/status.json
+  - https://shiphawk.statuspage.io/api/v2/summary.json
+  note: >-
+    Statuspage-hosted pages expose the standard /api/v2/*.json feeds; the URLs are recorded
+    as the platform's documented convention. Subscribe-to-incidents is available on the page.
+sla:
+  published: false
+  note: >-
+    No public SLA, uptime commitment or support-response target. ShipHawk explicitly states
+    the shared Sandbox "does NOT have the capacity, performance, or stability of the
+    ShipHawk Production environment", but publishes no figure for Production.
+support:
+  email: support@shiphawk.com
+  sales_email: contact@shiphawk.com
+  help_center: https://shiphawk.atlassian.net/wiki/spaces/HELP
+  phone: '+1 805-335-2432'
+retired_surfaces:
+- surface: https://shiphawk.com/api-docs
+  observed_status: 401
+  redirects_to: https://shiphawk.readme.io/inactive
+  probed: '2026-08-27'
+  note: >-
+    The legacy ReadMe.io developer hub is retired. ShipHawk's own GitHub client-library
+    repositories (shiphawk-node, shiphawk-python, shiphawk-elixir) still advertise this dead
+    URL in their descriptions. Current documentation is docs.shiphawk.com.
+changelog:
+  published: false
+  note: >-
+    No dated public changelog or release-notes page was found on shiphawk.com,
+    docs.shiphawk.com, blog.shiphawk.com or the Confluence help space. No changelog/
+    artifact is emitted and no ChangeLog pointer is wired.

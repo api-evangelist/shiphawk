@@ -1,0 +1,39 @@
+generated: '2026-08-27'
+method: searched
+source: >-
+  https://shiphawk.com/pricing (probed 2026-08-27 — HTTP 200 after redirect, but the redirect
+  lands on https://shiphawk.com/, the marketing home page: the pricing path no longer serves a
+  pricing page), plus a full crawl of the shiphawk.com navigation, which offers no Pricing item.
+description: >-
+  ShipHawk publishes no public pricing. Every commercial path on the site is a sales
+  conversation — "Let's Talk", "Schedule a Call", "Get Started" and a phone number — and there
+  is no self-service signup, no free tier and no published API call pricing, quota or overage.
+  Recorded as an honest zero.
+plan_count: 0
+pricing_model: quote-only (contact sales)
+public_pricing_page: false
+free_tier: false
+self_service_signup: false
+trial: not published
+plans: []
+evidence:
+- url: https://shiphawk.com/pricing
+  status: 200
+  note: Redirects to https://shiphawk.com/ — no pricing content served at this path.
+  probed: '2026-08-27'
+- url: https://info.shiphawk.com/schedule-a-call
+  status: 200
+  note: Where the site's "Let's Talk" / "Get Started" calls to action lead.
+  probed: '2026-08-27'
+- url: https://login.myshiphawk.com/
+  status: 200
+  note: Sign-in only. Resolves to /sign-in; no self-service registration path.
+  probed: '2026-08-27'
+sales_contacts:
+  phone: '+1 805-335-2432'
+  email: contact@shiphawk.com
+  support_email: support@shiphawk.com
+note: >-
+  API access is a feature of a ShipHawk subscription, not a separately metered product.
+  Because there is no published rate card, an integrator cannot estimate cost from the public
+  surface, and an agent cannot determine whether a call it is about to make is billable.

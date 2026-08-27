@@ -1,0 +1,71 @@
+generated: '2026-08-27'
+method: searched
+source: https://docs.shiphawk.com/#sandbox-and-production-environments
+docs: https://docs.shiphawk.com/#your-account
+description: >-
+  ShipHawk operates a shared, always-on Sandbox environment on a separate hostname with its
+  own API key, its own web portal and its own data. It is unusually well documented about
+  what it is NOT — reduced fidelity, no carrier data, no ShipHawk-negotiated rates — which
+  matters more to an integrator than the fact it exists.
+mode: separate-environment
+environments:
+- name: production
+  host: https://shiphawk.com
+  api_base: https://shiphawk.com/api/v4
+  portal: https://shiphawk.com/login
+- name: sandbox
+  host: https://sandbox.shiphawk.com
+  api_base: https://sandbox.shiphawk.com/api/v4
+  portal: https://sandbox.shiphawk.com/login
+keys:
+  model: one API key per environment
+  cross_environment_failure: 403 Forbidden
+  prefix_convention: not published — ShipHawk does not use a test/live key prefix
+  statement: >-
+    "Your ShipHawk account has two unique API Keys: one for the ShipHawk Sandbox environment,
+    and one for the ShipHawk Production environment. These keys are unique to their
+    environments, and will result in authentication failures (403 Forbidden) if used in the
+    incorrect environment."
+  caution: >-
+    Because there is no key prefix, a key alone does not tell an agent or an operator which
+    environment it belongs to. The hostname is the only environment signal.
+data_isolation:
+  shared_tenancy: >-
+    "The ShipHawk Sandbox environment is shared by multiple ShipHawk customers."
+  data_portability: >-
+    "Any data created in the ShipHawk Sandbox environment (including but not limited to
+    product SKUs, Rules, rates, shipments, webhooks, and so on) are NOT usable in the
+    Production environment."
+  unpacked_item_types: >-
+    "ShipHawk unpacked item types are intentionally NOT shared between environments."
+fidelity_gaps:
+- No ShipHawk multi-carrier engine data — "the unpacked item list, full suite of carriers,
+  and ShipHawk-negotiated carrier rates are NOT available in the Sandbox."
+- Reduced capacity, performance and stability versus Production, stated explicitly.
+- May run newer, less thoroughly tested functionality than Production.
+- Nothing is dispatched to a carrier and no valid shipping documentation is produced,
+  "as long as production carrier account credentials are not used".
+safety_note: >-
+  The no-carrier-dispatch guarantee is conditional on the integrator not configuring
+  production carrier credentials inside the Sandbox account. An agent operating in Sandbox
+  cannot assume its actions are inert without first confirming which carrier accounts are
+  attached.
+test_values:
+  published: false
+  note: >-
+    ShipHawk publishes no test addresses, magic identifiers, fixture SKUs, test tracking
+    numbers or trigger values. The example ids in the reference (ord_2E1pWGRh, shp_Hcy0ZwR1,
+    wh_6vh3AegY, whs_8MXd7Phd) are illustrative documentation values, not working sandbox
+    fixtures, and are deliberately not recorded here as test data.
+time_simulation:
+  supported: false
+  note: No test clock or time-travel facility is published.
+console:
+  interactive_api_console: false
+  note: >-
+    The Slate reference renders static cURL/Ruby/Python/Java examples with no in-browser
+    "try it" runner. The sandbox web portal at sandbox.shiphawk.com/login is the interactive
+    surface, and it requires an account.
+self_service_signup: >-
+  Not available. Sandbox access comes with a ShipHawk account, which is obtained through
+  sales ("Let's Talk" / schedule-a-call). There is no public developer self-signup.

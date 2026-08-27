@@ -1,18 +1,76 @@
 aid: shiphawk
 name: ShipHawk
-description: 'ShipHawk is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  ShipHawk is a Santa Barbara, California shipping and warehouse automation platform
+  for high-volume eCommerce, wholesale and manufacturing shippers. It combines a
+  multi-carrier transportation management system (TMS), a warehouse management system
+  (WMS), packing and rate optimization, and shipping business rules, and it plugs into
+  ERPs including NetSuite, Acumatica, Infor, Microsoft Dynamics 365, Sage and SAP.
+  ShipHawk publishes a public REST API (v4) covering rating, address validation, orders,
+  proposed shipments, shipments, SKUs, handling units, material containers, warehouses,
+  workstations, documents (labels, BOLs, commercial invoices, packing slips), tracking
+  and webhooks, documented in a single Slate reference at docs.shiphawk.com and served
+  from shiphawk.com/api/v4 with a shared sandbox at sandbox.shiphawk.com.
+image: https://shiphawk.com/wp-content/uploads/2022/03/ShipHawk-favicon_2.png
 url: https://raw.githubusercontent.com/api-evangelist/shiphawk/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-27'
 modified: '2026-08-27'
 tags:
 - Company
-apis: []
+- Shipping
+- Logistics
+- Transportation Management
+- Warehouse Management
+- Freight
+- Parcel
+- Fulfillment
+- eCommerce
+- Supply Chain
+- Carriers
+- Rate Shopping
+- Tracking
+- Webhooks
+apis:
+- name: ShipHawk API v4
+  description: >-
+    ShipHawk's public REST API. Key-based authentication (X-Api-Key header or api_key
+    query parameter), JSON request and response bodies, POST used for both create and
+    update (no PUT/PATCH). Resources cover addresses and address validation, batches,
+    child accounts and child-account users, documents, handling units, job trackers,
+    material containers, orders and order line items, proposed shipments, rates,
+    shipments and shipment notes, SKUs and bulk SKU import, unpacked items, users,
+    warehouses, webhooks and workstations.
+  humanURL: https://docs.shiphawk.com/
+  baseURL: https://shiphawk.com/api/v4
+  tags:
+  - Shipping
+  - Rates
+  - Shipments
+  - Orders
+  - Tracking
+  - Webhooks
+  properties:
+  - type: Documentation
+    url: https://docs.shiphawk.com/
+  - type: APIReference
+    url: https://docs.shiphawk.com/#overview
+  - type: Authentication
+    url: authentication/shiphawk-authentication.yml
+  - type: Webhooks
+    url: asyncapi/shiphawk-webhooks.yml
+  - type: ErrorCatalog
+    url: errors/shiphawk-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/shiphawk-rate-limits.yml
+  - type: Conventions
+    url: conventions/shiphawk-conventions.yml
+  - type: DataModel
+    url: data-model/shiphawk-data-model.yml
+  - type: Sandbox
+    url: sandbox/shiphawk-sandbox.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -20,4 +78,61 @@ maintainers:
   email: info@apis.io
 common:
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://shiphawk.com/
+- type: DeveloperPortal
+  url: https://shiphawk.com/solutions/shipping-api/
+- type: Documentation
+  url: https://docs.shiphawk.com/
+- type: APIReference
+  url: https://docs.shiphawk.com/#overview
+- type: GettingStarted
+  url: https://docs.shiphawk.com/#api-integration
+- type: Support
+  url: https://shiphawk.atlassian.net/wiki/spaces/HELP
+- type: Blog
+  url: https://blog.shiphawk.com/
+- type: GitHubOrganization
+  url: https://github.com/ShipHawk
+- type: Login
+  url: https://login.myshiphawk.com/
+- type: TermsOfService
+  url: https://shiphawk.com/terms-and-conditions/
+- type: PrivacyPolicy
+  url: https://shiphawk.com/privacy/
+- type: StatusPage
+  url: https://shiphawk.statuspage.io/
+- type: Lifecycle
+  url: lifecycle/shiphawk-lifecycle.yml
+- type: Deprecation
+  url: lifecycle/shiphawk-lifecycle.yml
+- type: Packages
+  url: packages/shiphawk-packages.yml
+- type: SDKs
+  url: packages/shiphawk-packages.yml
+- type: Authentication
+  url: authentication/shiphawk-authentication.yml
+- type: Conventions
+  url: conventions/shiphawk-conventions.yml
+- type: ErrorCatalog
+  url: errors/shiphawk-problem-types.yml
+- type: DataModel
+  url: data-model/shiphawk-data-model.yml
+- type: Sandbox
+  url: sandbox/shiphawk-sandbox.yml
+- type: Webhooks
+  url: asyncapi/shiphawk-webhooks.yml
+- type: Conformance
+  url: conformance/shiphawk-conformance.yml
+- type: Plans
+  url: plans/shiphawk-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/shiphawk-rate-limits.yml
+- type: LLMsTxt
+  url: llms/shiphawk-llms.txt
+- type: DomainSecurity
+  url: security/shiphawk-domain-security.yml
+x-enrichment:
+  date: '2026-08-27'
+  status: enriched
+  artifacts_added: 15
+  pass: local-v1

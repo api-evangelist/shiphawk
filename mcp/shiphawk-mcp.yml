@@ -1,0 +1,139 @@
+generated: '2026-08-27'
+method: derived
+source: >-
+  Derived from the operation surface published at https://docs.shiphawk.com/. Searched first
+  for a ShipHawk-published MCP server: probed https://mcp.shiphawk.com/ (302 to the marketing
+  home page), https://shiphawk.com/mcp (404), searched npm for "shiphawk" (only
+  shiphawk-fonts@1.1.0, a web-app font package) and reviewed all 27 public repositories in
+  https://github.com/ShipHawk. No MCP server, hosted or packaged, exists.
+description: >-
+  ShipHawk ships no MCP server. This file records that absence and derives a CANDIDATE tool
+  surface from ShipHawk's own documented v4 endpoints, so the shape of an eventual server is
+  on record. Nothing here is live and no MCPServer pointer is wired into apis.yml.
+status: candidate
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: api-key
+  verified: searched
+  note: >-
+    `auth: api-key` describes what any future server would have to carry — ShipHawk's only
+    credential is a single environment-scoped API key with full account authority, which is a
+    poor fit for delegated agent access: there is no OAuth, no scopes and no way to issue a
+    read-only or shipment-only credential.
+search_evidence:
+- url: https://mcp.shiphawk.com/
+  status: 200
+  note: Redirects to https://shiphawk.com/ — wildcard DNS/vhost, not an MCP endpoint.
+  probed: '2026-08-27'
+- url: https://shiphawk.com/mcp
+  status: 404
+  probed: '2026-08-27'
+- url: https://registry.npmjs.org/-/v1/search?text=shiphawk
+  status: 200
+  note: No ShipHawk MCP package published.
+  probed: '2026-08-27'
+- url: https://api.github.com/orgs/shiphawk/repos
+  status: 200
+  note: 27 public repos, none MCP-related.
+  probed: '2026-08-27'
+candidate_tools:
+  basis: >-
+    One tool per marquee documented operation. Input schemas are NOT included: ShipHawk
+    publishes no OpenAPI, so parameter shapes would have to be transcribed by hand from prose
+    and would not be trustworthy. Names and the backing REST operation are recorded; schemas
+    are left to authenticated derivation against a real spec.
+  tools:
+  - name: get_rates
+    description: Price a shipment across carriers and services for a given origin, destination and items.
+    rest: POST /api/v4/rates
+    consequence: read
+  - name: validate_address
+    description: Validate a shipping address and return a suggested correction.
+    rest: POST /api/v4/addresses/validate
+    consequence: read
+  - name: check_address
+    description: Check an address without storing it.
+    rest: POST /api/v4/addresses/check
+    consequence: read
+  - name: create_order
+    description: Create an order for fulfilment.
+    rest: POST /api/v4/orders
+    consequence: write
+  - name: get_order
+    description: Retrieve an order by id or order number.
+    rest: GET /api/v4/orders/:id
+    consequence: read
+  - name: search_orders
+    description: Search orders.
+    rest: GET /api/v4/orders
+    consequence: read
+  - name: cancel_order
+    description: Cancel an order, optionally removing unprocessed proposed shipments.
+    rest: POST /api/v4/orders/:order_number_or_id/cancel
+    consequence: destructive
+  - name: hold_orders
+    description: Place one or more orders on hold.
+    rest: POST /api/v4/orders/hold
+    consequence: write
+  - name: release_orders
+    description: Remove a hold from one or more orders.
+    rest: POST /api/v4/orders/restore
+    consequence: write
+  - name: generate_proposed_shipment
+    description: Generate a costed shipment plan for an order without booking it.
+    rest: POST /api/v4/orders/:id/proposed_shipments/generate
+    consequence: write
+  - name: book_proposed_shipment
+    description: Book a proposed shipment, tendering it to a carrier.
+    rest: POST /api/v4/orders/:id/proposed_shipments/book
+    consequence: high-consequence
+    note: Spends money and creates a real carrier obligation. Reversal is Cancel a Shipment, with no published window.
+  - name: create_shipment
+    description: Create and book a shipment directly.
+    rest: POST /api/v4/shipments
+    consequence: high-consequence
+  - name: cancel_shipment
+    description: Cancel a booked shipment.
+    rest: DELETE /api/v4/shipments/:id
+    consequence: destructive
+  - name: track_shipment
+    description: Retrieve tracking events for a shipment.
+    rest: GET /api/v4/shipments/:id/tracking
+    consequence: read
+  - name: get_shipment_label
+    description: Retrieve the URL of the parcel label PDF for a shipment.
+    rest: GET /api/v4/shipments/:id/labels
+    consequence: read
+  - name: get_bill_of_lading
+    description: Retrieve the URL of the BOL PDF for a freight shipment.
+    rest: GET /api/v4/shipments/:id/bol
+    consequence: read
+  - name: upsert_sku
+    description: Create or update a product SKU in the ShipHawk PMS.
+    rest: POST /api/v4/skus
+    consequence: write
+  - name: search_skus
+    description: Search the product catalogue.
+    rest: GET /api/v4/skus/search
+    consequence: read
+  - name: list_warehouses
+    description: List warehouses on the account.
+    rest: GET /api/v4/warehouses
+    consequence: read
+  - name: get_job_status
+    description: Poll the status of an asynchronous ShipHawk operation.
+    rest: GET /api/v4/job_trackers/:id
+    consequence: read
+  - name: manage_webhooks
+    description: Create, list, update and delete webhook subscriptions.
+    rest: /api/v4/webhooks
+    consequence: write
+agent_readiness_notes:
+- No OAuth or scopes — an agent given a ShipHawk key holds full account authority including
+  DELETE /api/v4/skus/all.
+- No idempotency mechanism, so a retried booking is a duplicate shipment.
+- No published rate limits or 429 semantics, so an agent cannot pace itself.
+- Reversal paths exist for every write surface but none carries a published window.

@@ -1,0 +1,76 @@
+generated: '2026-08-27'
+method: searched
+source: https://docs.shiphawk.com/#authentication
+docs: https://docs.shiphawk.com/#authentication
+description: >-
+  ShipHawk uses a single key-based authentication scheme. There is no OAuth 2.0, no
+  OpenID Connect, no mutual TLS and no scope surface — one API key per environment
+  carries full account authority. Keys can be sent either as a request header or as a
+  URL query parameter; the query-parameter form is documented by ShipHawk and is used
+  throughout their own cURL examples, which puts credentials in server logs, browser
+  history and referrer headers.
+api_style: REST over HTTPS (HTTPS is mandatory — "all API requests MUST be made over HTTPS")
+schemes:
+- id: api_key_header
+  type: apiKey
+  in: header
+  name: X-Api-Key
+  description: >-
+    Primary documented mechanism. Header name is case-insensitive in ShipHawk's examples
+    (X-Api-Key, x-api-key and X-API-KEY all appear in the reference).
+  example_shape: "x-api-key: <YOUR_API_KEY>"
+  docs: https://docs.shiphawk.com/#authentication
+- id: api_key_query
+  type: apiKey
+  in: query
+  name: api_key
+  description: >-
+    Documented alternative — "Pass your API Key in the X-Api-Key Header or as a param in
+    an HTTP request." ShipHawk's own examples for the rates, shipments and unpacked-item
+    endpoints use this form (e.g. POST /api/v4/rates?api_key=...).
+  risk: >-
+    Credentials in the query string are recorded by proxies, CDNs, access logs and browser
+    history. Prefer the header form.
+  docs: https://docs.shiphawk.com/#authentication
+oauth2: false
+openid_connect: false
+mutual_tls: false
+scopes: false
+scopes_note: >-
+  ShipHawk publishes no OAuth scope or permission reference; authorization is expressed
+  through user permission levels in the web portal, not through token scopes. No
+  scopes/ artifact is emitted (the pipeline's scopes/ recipe is OAuth-only).
+key_management:
+  keys_per_account: 2
+  environments:
+  - name: production
+    host: https://shiphawk.com
+    api_base: https://shiphawk.com/api/v4
+  - name: sandbox
+    host: https://sandbox.shiphawk.com
+    api_base: https://sandbox.shiphawk.com/api/v4
+  cross_environment_behavior: >-
+    "These keys are unique to their environments, and will result in authentication
+    failures (403 Forbidden) if used in the incorrect environment."
+  rotation_policy: not documented
+  key_prefix: not documented
+  self_service_issuance: not documented — keys are obtained through the ShipHawk account/portal
+failure_modes:
+- status: 401
+  meaning: Unauthorized. Your authentication credentials are out of date or invalid.
+- status: 403
+  meaning: >-
+    Forbidden. You do not have permission to perform the request — also returned when a
+    sandbox key is used against production or vice versa.
+- status: 402
+  meaning: Suspended. Your account has been suspended (contact support@shiphawk.com).
+x-evidence:
+  probed: '2026-08-27'
+  url: https://shiphawk.com/api/v4/user
+  http_status: 401
+  content_type: application/json
+  body: '{"error":"401 Unauthorized"}'
+  note: >-
+    Unauthenticated probe of the live production base confirms the documented base URL and
+    the JSON error envelope. Response headers carried x-request-id, x-release-version
+    (v2026.6.0) and x-runtime; no WWW-Authenticate and no rate-limit headers were returned.

@@ -1,0 +1,129 @@
+generated: '2026-08-27'
+method: searched
+source: https://docs.shiphawk.com/#webhooks
+docs: https://docs.shiphawk.com/#webhooks
+description: >-
+  ShipHawk's event surface is HTTP webhooks, managed through the API itself. There is no
+  AsyncAPI document, no streaming/SSE surface and no message broker — so no asyncapi/ spec
+  is emitted, only this webhook catalog. The event list below is the one ShipHawk returns
+  from its own discovery endpoint, GET /api/v4/webhooks/events.
+asyncapi_spec: none published
+transport: HTTP POST callback
+subscription_model: >-
+  Self-service through the API. A subscription is a Webhook object with a callback_url and an
+  events[] array; a single subscription can carry many event types, and an account can hold
+  many subscriptions.
+discovery_endpoint:
+  method: GET
+  path: /api/v4/webhooks/events
+  description: Returns the list of event types available to the account.
+management_endpoints:
+- method: GET
+  path: /api/v4/webhooks/events
+  summary: Get list of available webhook events
+- method: POST
+  path: /api/v4/webhooks
+  summary: Create a webhook subscription
+- method: GET
+  path: /api/v4/webhooks
+  summary: List created webhook subscriptions
+- method: GET
+  path: /api/v4/webhooks/:id
+  summary: Retrieve a webhook subscription
+- method: POST
+  path: /api/v4/webhooks/:id
+  summary: Update a webhook subscription
+- method: DELETE
+  path: /api/v4/webhooks/:id
+  summary: Delete a webhook subscription
+subscription_object:
+  fields:
+  - name: id
+    type: string
+    example_prefix: wh_
+  - name: callback_url
+    type: string
+    required: true
+    description: Publicly accessible URL.
+  - name: events
+    type: array of enum
+  - name: use_basic_auth
+    type: boolean
+  - name: basic_auth_username
+    type: string
+  - name: basic_auth_password
+    type: string
+  - name: created_at
+    type: string (ISO 8601)
+events:
+- name: shipment.status_update
+  resource: Shipment
+  documented_payload_example: true
+  source_section: Status Update Event
+- name: shipment.address_update
+  resource: Shipment
+  documented_payload_example: true
+  source_section: Address Update Event
+- name: shipment.notes_update
+  resource: Shipment
+  documented_payload_example: true
+  source_section: Notes Update Event
+- name: shipment.timing_update
+  resource: Shipment
+  documented_payload_example: true
+  source_section: Timing Update Event
+- name: shipment.tracking_update
+  resource: Shipment
+  documented_payload_example: true
+  source_section: Tracking Update Event
+- name: shipment.documents_update
+  resource: Shipment
+  documented_payload_example: false
+  note: >-
+    Returned by GET /api/v4/webhooks/events and accepted in the events[] enum, but the
+    reference publishes no example payload for it.
+- name: shipment.create_from_order
+  resource: Shipment
+  documented_payload_example: true
+  source_section: Shipment Create From Order Event
+- name: shipment.create
+  resource: Shipment
+  documented_payload_example: false
+  note: >-
+    Listed in the events[] parameter enum on Create a Webhook but NOT returned by the
+    documented example response of GET /api/v4/webhooks/events. The two lists in the
+    reference disagree; trust the live discovery endpoint for the account.
+- name: proposed_shipment.create
+  resource: ProposedShipment
+  documented_payload_example: false
+  note: In the events[] enum only, as above.
+- name: order.document_create
+  resource: Order
+  documented_payload_example: false
+  note: In the events[] enum only, as above.
+security:
+  signature_verification: false
+  signature_header: none published
+  mechanism: >-
+    Optional HTTP Basic authentication on the callback — the subscriber supplies
+    use_basic_auth, basic_auth_username and basic_auth_password, and ShipHawk presents them
+    to the callback URL. There is no HMAC signature, no timestamp header and no replay
+    protection, so a receiver cannot cryptographically verify that a payload came from
+    ShipHawk. Basic auth over TLS is the only authenticity control offered.
+  ip_allowlist: not published
+delivery:
+  retry_policy: not documented
+  ordering_guarantee: not documented
+  at_least_once: not documented
+  timeout: not documented
+  dead_letter: not documented
+  note: >-
+    ShipHawk publishes no delivery semantics for webhooks at all. Receivers should assume
+    duplicates and out-of-order arrival are possible and reconcile against the REST resource
+    (GET /api/v4/shipments/:id) rather than trusting the event body as the system of record.
+gaps:
+- No AsyncAPI document.
+- No signed payloads (HMAC) — only optional Basic auth.
+- No published retry/backoff, ordering or delivery guarantees.
+- Example payloads published for only 5 of the 10 event names that appear in the reference.
+- The events[] enum and the discovery-endpoint example response list different sets of events.

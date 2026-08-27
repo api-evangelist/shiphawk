@@ -1,0 +1,131 @@
+generated: '2026-08-27'
+method: probed
+source: >-
+  Live HTTP probes on 2026-08-27 of every ShipHawk host reachable from apis.yml —
+  the API/production host (shiphawk.com), the sandbox host (sandbox.shiphawk.com),
+  the documentation host (docs.shiphawk.com) and the application sign-in host
+  (login.myshiphawk.com).
+description: >-
+  ShipHawk serves NO /.well-known/ discovery documents. shiphawk.com returns a
+  WordPress 404 page for every path. sandbox.shiphawk.com and login.myshiphawk.com
+  answer HTTP 200 for every /.well-known/* path with an identical 474-byte
+  single-page-app HTML shell, and docs.shiphawk.com answers 200 with the full
+  734KB Slate documentation page — all three are catch-all routes, not documents.
+  Those 200s are recorded below as `document: false` and no WellKnown or SecurityTxt
+  pointer is emitted in apis.yml.
+hosts:
+- host: https://shiphawk.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://sandbox.shiphawk.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    document: false
+    note: 474-byte text/html SPA shell returned for every path — not a security.txt
+  - path: /.well-known/openid-configuration
+    status: 200
+    document: false
+    note: same SPA shell, not JSON
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    document: false
+    note: same SPA shell, not JSON
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    document: false
+    note: same SPA shell, not JSON
+  - path: /.well-known/api-catalog
+    status: 200
+    document: false
+    note: same SPA shell, not a linkset
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    document: false
+    note: same SPA shell, not JSON
+  - path: /.well-known/agent-card.json
+    status: 200
+    document: false
+    note: same SPA shell, not an AgentCard
+  - path: /.well-known/agent.json
+    status: 200
+    document: false
+    note: same SPA shell, not an AgentCard
+- host: https://docs.shiphawk.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    document: false
+    note: >-
+      Slate docs host answers 200 with the entire 734,448-byte documentation page for
+      every path, including /openapi.json, /swagger.json and /llms.txt — a catch-all.
+  - path: /.well-known/openid-configuration
+    status: 200
+    document: false
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    document: false
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    document: false
+  - path: /.well-known/api-catalog
+    status: 200
+    document: false
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    document: false
+  - path: /.well-known/agent-card.json
+    status: 200
+    document: false
+  - path: /.well-known/agent.json
+    status: 200
+    document: false
+- host: https://login.myshiphawk.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    document: false
+    note: 474-byte SPA shell
+  - path: /.well-known/openid-configuration
+    status: 200
+    document: false
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    document: false
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    document: false
+  - path: /.well-known/api-catalog
+    status: 200
+    document: false
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    document: false
+  - path: /.well-known/agent-card.json
+    status: 200
+    document: false
+  - path: /.well-known/agent.json
+    status: 200
+    document: false
+summary:
+  real_documents_found: 0
+  security_txt: false
+  api_catalog: false
+  openid_configuration: false
+  agent_card: false
+  pointer_emitted: false

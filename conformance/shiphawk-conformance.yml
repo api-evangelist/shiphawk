@@ -1,0 +1,143 @@
+generated: '2026-08-27'
+method: searched
+source: >-
+  https://docs.shiphawk.com/ (API Principles, Authentication, Status Codes, Handling Unit and
+  SKU object references), live header/response probes of https://shiphawk.com/api/v4/user on
+  2026-08-27, and https://shiphawk.com/privacy/ + https://shiphawk.com/terms-and-conditions/.
+description: >-
+  Cross-cutting and domain-standard conformance for the ShipHawk v4 API. ShipHawk conforms to
+  very little of the modern cross-cutting API stack — no OAuth, no RFC 9457, no RFC 8594, no
+  standardised rate-limit headers — but it does carry real freight-domain standard signatures
+  in the contract itself: NMFC freight classes, Harmonized System codes, GS1 SSCC container
+  codes and BOL semantics paraphrased from the GS1 Bill of Lading Guidelines.
+cross_cutting:
+- id: oauth2
+  conforms: false
+  evidence: >-
+    Authentication is a single API key (X-Api-Key header or api_key query parameter). No
+    OAuth 2.0 flows, no token endpoint, no /.well-known/oauth-authorization-server (404 on
+    shiphawk.com). https://docs.shiphawk.com/#authentication
+- id: oidc
+  conforms: false
+  evidence: /.well-known/openid-configuration returns 404 on shiphawk.com; no OIDC in the docs.
+- id: rfc9457
+  conforms: false
+  evidence: >-
+    Errors are application/json with a single {"error":"..."} string, not
+    application/problem+json. Observed live at https://shiphawk.com/api/v4/user (401).
+- id: rfc8594
+  conforms: false
+  evidence: >-
+    No Sunset or Deprecation response headers. Deprecations are inline prose notes in the
+    reference with an effective date. See lifecycle/shiphawk-lifecycle.yml.
+- id: idempotency
+  conforms: false
+  evidence: >-
+    No Idempotency-Key header or equivalent anywhere in the reference; the word "idempotent"
+    does not appear. See conventions/shiphawk-conventions.yml.
+- id: pagination
+  conforms: partial
+  evidence: >-
+    Consistent page/per_page/sort/direction parameters documented once for the whole API
+    (https://docs.shiphawk.com/#pagination-params), but no envelope, total-count or has_more
+    field on list responses and no cursor support. Counts are separate endpoints.
+- id: ratelimit-headers
+  conforms: false
+  evidence: >-
+    No RateLimit-* or X-RateLimit-* headers observed on live responses, and no published
+    limits. See rate-limits/shiphawk-rate-limits.yml.
+- id: json-api
+  conforms: false
+  evidence: Plain JSON objects; no JSON:API document structure, no type/attributes envelope.
+- id: odata
+  conforms: false
+- id: scim
+  conforms: false
+  evidence: >-
+    User and child-account-user management is a bespoke REST surface (/api/v4/users,
+    /api/v4/child_accounts/:id/users) with no SCIM schema URNs.
+- id: openapi
+  conforms: false
+  evidence: >-
+    No OpenAPI/Swagger document published. Probed 2026-08-27 on shiphawk.com
+    (/openapi.json, /openapi.yaml, /swagger.json, /v1/openapi.json, /docs, /redoc — all 404)
+    and on docs.shiphawk.com (all paths return the same 734KB Slate HTML page).
+- id: asyncapi
+  conforms: false
+  evidence: Webhooks documented in prose; no AsyncAPI document. See asyncapi/shiphawk-webhooks.yml.
+- id: webhook-signatures
+  conforms: false
+  evidence: >-
+    Callback authenticity is optional HTTP Basic auth only; no HMAC signature header.
+- id: https-only
+  conforms: true
+  evidence: >-
+    "For security, all API requests MUST be made over HTTPS."
+    https://docs.shiphawk.com/#https — confirmed by HSTS on shiphawk.com (max-age 31536000).
+- id: rest
+  conforms: partial
+  evidence: >-
+    Resource-oriented URIs and standard status codes, but ShipHawk deliberately omits PUT and
+    PATCH and overloads POST for update: "We forgo the use of the HTTP PUT and PATCH verbs and
+    use POST for both creating and updating resources."
+domain_standards:
+- id: nmfc
+  name: National Motor Freight Classification (NMFC)
+  body: NMFTA
+  conforms: true
+  strength: contract-level
+  evidence: >-
+    First-class attribute on the Handling Unit and SKU objects: `nmfc` — "NMFC code (National
+    Motor Freight Classification)" — alongside `freight_class`, with ShipHawk stating the
+    default "will be calculated based on density (this can affect rating accuracy)".
+    https://docs.shiphawk.com/#handling-unit-object
+  buyer_impact: >-
+    An LTL shipper that already classifies its catalogue by NMFC can map straight onto the
+    rate and handling-unit payloads without a bespoke translation layer.
+- id: hs-codes
+  name: Harmonized System / Harmonized Tariff codes (HS/HTC)
+  body: World Customs Organization
+  conforms: true
+  strength: contract-level
+  evidence: >-
+    A dedicated `SKU HarmonizedCodeMapping` object plus a `Harmonized Code` attribute on the
+    SKU resource; the integration guide requires HS codes and country of origin for
+    international shipments. https://docs.shiphawk.com/#sku-harmonizedcodemapping
+  buyer_impact: Customs documentation (commercial invoice) is generated from these codes.
+- id: gs1-sscc
+  name: GS1 Serial Shipping Container Code (SSCC)
+  body: GS1
+  conforms: true
+  strength: contract-level
+  evidence: >-
+    `sscc_serial_references` on the Handling Unit object — "list of assigned Serial Shipping
+    Container Codes (SSCC)". https://docs.shiphawk.com/#handling-unit-object
+- id: gs1-bol
+  name: GS1 Bill of Lading Guidelines
+  body: GS1
+  conforms: partial
+  strength: semantics-cited
+  evidence: >-
+    The handling-unit definition in the reference is annotated "Paraphrased from: GS1 Bill of
+    Lading Guidelines" — ShipHawk names the standard as the source of its outermost-unit
+    semantics. The BOL document itself is produced as a PDF
+    (GET /api/v4/shipments/:id/bol), not as a GS1 message.
+- id: edi-x12
+  name: ANSI ASC X12 transportation transaction sets (204/210/214/856/940/945)
+  conforms: false
+  evidence: >-
+    No X12, EDIFACT or EDI message type appears anywhere in the API reference. ShipHawk
+    integrates with carriers and ERPs through its own REST surface and prebuilt ERP
+    connectors, not through published EDI envelopes. Reward-only check — recorded as a
+    documented absence, not a penalty.
+compliance:
+  certifications_published: false
+  trust_center: false
+  evidence: >-
+    probe-security-programs.py returned vdp=none trust=none on 2026-08-27. No SOC 2, ISO
+    27001, PCI DSS, HIPAA or FedRAMP claim was found on shiphawk.com, and there is no
+    trust.shiphawk.com. No `Compliance` or `TrustCenter` pointer is emitted.
+  privacy_policy: https://shiphawk.com/privacy/
+  terms: https://shiphawk.com/terms-and-conditions/
+  security_txt: false
+  vulnerability_disclosure_program: none found

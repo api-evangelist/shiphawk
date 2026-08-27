@@ -1,0 +1,45 @@
+generated: '2026-08-27'
+method: searched
+source: >-
+  https://docs.shiphawk.com/ — searched for rate limit, throttle, quota, 429, Retry-After and
+  X-RateLimit across the complete single-page reference (17,211 lines of extracted text): no
+  match. Confirmed against live response headers from https://shiphawk.com/api/v4/user,
+  probed 2026-08-27.
+docs: https://docs.shiphawk.com/#status-codes
+description: >-
+  ShipHawk publishes no rate limits and returns no rate-limit headers. The documented status
+  code table does not include 429 at all. An agent has no runtime signal telling it how much
+  budget remains, and no documented backoff contract — the only throttling signal ShipHawk
+  defines is HTTP 423 Locked, which is a per-resource concurrency guard rather than a rate limit.
+limit_count: 0
+rate_limits: []
+response_headers:
+  published: []
+  observed: []
+  observed_at: https://shiphawk.com/api/v4/user
+  observed_date: '2026-08-27'
+  observed_header_set: [date, content-type, server, x-app-version, x-release-version, x-app-env, cache-control, x-request-id, x-runtime]
+  note: >-
+    No RateLimit-*, X-RateLimit-*, Retry-After or equivalent header was returned on an
+    unauthenticated request. Headers on an authenticated request were not tested (no key).
+exhaustion_status_code: not documented
+documented_429: false
+adjacent_signals:
+- status: 423
+  name: Locked
+  meaning: >-
+    "Resource is locked because it is processing another request." Serialises concurrent
+    writes against a single resource; not a rate limit, and no Retry-After is published.
+  retry_guidance: none published
+- mechanism: asynchronous job trackers
+  meaning: >-
+    Bulk and long-running operations (bulk SKU import, book_async, split_async, combine async,
+    pick_ticket_async) are queued behind /api/v4/job_trackers/:id, which is ShipHawk's
+    documented approach to high-volume work instead of a published request budget.
+- mechanism: rate quote expiry
+  meaning: Rate results expire after 2 hours, forcing a fresh rate request rather than replay.
+gaps:
+- No published limit, window, burst or per-key quota.
+- No 429 in the status-code reference.
+- No Retry-After or RateLimit-* headers observed.
+- No documented backoff guidance for 423 or 500.
