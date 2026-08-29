@@ -11,6 +11,17 @@ description: >-
   workstations, documents (labels, BOLs, commercial invoices, packing slips), tracking
   and webhooks, documented in a single Slate reference at docs.shiphawk.com and served
   from shiphawk.com/api/v4 with a shared sandbox at sandbox.shiphawk.com.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://shiphawk.com/wp-content/uploads/2022/03/ShipHawk-favicon_2.png
 url: https://raw.githubusercontent.com/api-evangelist/shiphawk/refs/heads/main/apis.yml
 x-type: company
