@@ -38,6 +38,21 @@ tags:
 - Freight
 - Parcel
 - Fulfillment
+- E-Commerce
+- Supply Chain
+- Carriers
+- Rate Shopping
+- Tracking
+- Webhook
+tags_raw:
+- Company
+- Shipping
+- Logistics
+- Transportation Management
+- Warehouse Management
+- Freight
+- Parcel
+- Fulfillment
 - eCommerce
 - Supply Chain
 - Carriers
@@ -57,6 +72,13 @@ apis:
   humanURL: https://docs.shiphawk.com/
   baseURL: https://shiphawk.com/api/v4
   tags:
+  - Shipping
+  - Rates
+  - Shipments
+  - Order
+  - Tracking
+  - Webhook
+  tags_raw:
   - Shipping
   - Rates
   - Shipments
