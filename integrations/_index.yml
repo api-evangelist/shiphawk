@@ -16,3 +16,15 @@
   relationship: platform-app
   status: not-a-workflow
   arazzo: null
+- slug: shiphawk-amazon-selling-partner-appstore
+  label: Amazon Selling Partner Appstore
+  partner: amazon-seller-central
+  partner_name: Amazon Selling Partner Appstore
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://sellercentral.amazon.com/selling-partner-appstore/dp/amzn1.sp.solution.89ab2126-b544-4066-8403-689fe6e098ba
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
